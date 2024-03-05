@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // Serve your HTML files
-app.get("/", (req, res) => {
+app.get("/index", (req, res) => {
   res.sendFile(__dirname + "/public/index.html");
 });
 
