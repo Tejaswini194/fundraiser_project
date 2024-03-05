@@ -26,6 +26,10 @@ app.get("/admin", (req, res) => {
   res.sendFile(__dirname + "/public/admin.html");
 });
 
+app.get("/*", (_, res) => {
+  return res.status(200).json({error: "invalid route"});
+})
+
 app.post("/admin", (req, res) => {
   const amount = parseFloat(req.body.amount);
   if (!isNaN(amount)) {
