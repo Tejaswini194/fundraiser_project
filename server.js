@@ -2,6 +2,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const express = require("express");
 const http = require("http");
+const path = require('path');
 const socketIo = require("socket.io");
 
 const app = express();
@@ -18,12 +19,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // Serve your HTML files
-app.get("/index", (req, res) => {
-  res.sendFile(__dirname, 'public', 'index.html');
+app.get("/", (req, res) => {
+  res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
 });
 
 app.get("/admin", (req, res) => {
-  res.sendFile(__dirname, 'public', 'admin.html');
+  res.sendFile(path.resolve(__dirname, 'public', 'admin.html'));
 });
 
 app.get("/*", (_, res) => {
