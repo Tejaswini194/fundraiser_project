@@ -19,11 +19,11 @@ app.use(cors());
 
 // Serve your HTML files
 app.get("/index", (req, res) => {
-  res.sendFile(__dirname + "/public/index.html");
+  res.sendFile(__dirname, 'public', 'index.html');
 });
 
 app.get("/admin", (req, res) => {
-  res.sendFile(__dirname + "/public/admin.html");
+  res.sendFile(__dirname, 'public', 'admin.html');
 });
 
 app.get("/*", (_, res) => {
