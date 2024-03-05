@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Admin Dashboard</title>
+  </head>
+  <body>
+    <h1>Admin Interface</h1>
+    <div>
+      <input
+        type="radio"
+        id="thousand"
+        name="denomination"
+        value="1000"
+        onchange="convertValue()"
+      />
+      <label for="thousand">Thousand</label>
+      <input
+        type="radio"
+        id="lac"
+        name="denomination"
+        value="100000"
+        onchange="convertValue()"
+      />
+      <label for="lac">Lac</label>
+      <input
+        type="radio"
+        id="crore"
+        name="denomination"
+        value="10000000"
+        onchange="convertValue()"
+      />
+      <label for="crore">Crore</label>
+    </div>
+    <input
+      type="number"
+      id="number"
+      min="1"
+      max="99"
+      onchange="convertValue()"
+    />
+
+    <p id="result"></p>
+
+    <form id="donateForm">
+      <input
+        type="number"
+        id="amount"
+        placeholder="Enter donation amount"
+        required
+      />
+      <button type="submit">Submit Donation</button>
+    </form>
+
+    <p id="totalDonated">Total Donated: ₹0</p>
+    <p id="totalContribution">Total Contribution: 0 meals</p>
+
+    <script>
+      function convertValue() {
+        var denomination;
+        var radios = document.getElementsByName("denomination");
+        for (var i = 0; i < radios.length; i++) {
+          if (radios[i].checked) {
+            denomination = parseFloat(radios[i].value);
+            break;
+          }
+        }
+
+        var number = parseFloat(document.getElementById("number").value);
+        var value = number * denomination;
+
+        document.getElementById("result").innerHTML = "Value: " + value;
+
+        document.getElementById("amount").value = value;
+      }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script type="text/javascript">
+      document.addEventListener("DOMContentLoaded", () => {
+        var socket = io.connect(
+          location.protocol + "//" + document.domain + ":" + location.port
+        );
+        // var serverUrl = "https://your-server-url.com"; // This should be replaced with your actual server's URL
+        // var socket = io.connect(serverUrl);
+
+        // Request initial data upon page load
+        socket.emit("request_initial_data");
+
+        document.getElementById("donateForm").onsubmit = function () {
+          let amount = document.getElementById("amount").value;
+          socket.emit("donation", { amount: amount });
+          document.getElementById("amount").value = "";
+          return false;
+        };
+
+        socket.on("update", function (data) {
+          document.getElementById("totalDonated").textContent =
+            "Total Donated: ₹" + data.total_amount.toFixed(2);
+          document.getElementById("totalContribution").textContent =
+            "Total Contribution: " +
+            data.total_contribution.toFixed(2) +
+            " meals";
+        });
+      });
+    </script>
+  </body>
+</html>

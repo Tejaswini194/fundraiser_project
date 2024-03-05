@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Fundraiser Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            font-family: "Roboto", sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        .content {
+            min-height: calc(100% - 60px);
+        }
+
+        .header {
+            background-color: #2F539B;
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .chart-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 20px;
+            flex-wrap: wrap;
+        }
+
+        .chart {
+            width: 40%;
+            margin: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .update-label {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background-color: transparent;
+            color: #a8a9ad;
+            padding: 5px;
+            display: none;
+        }
+
+        .tagline {
+            font-family: "Great Vibes", cursive;
+            color: #333;
+            padding: 10px;
+            text-align: center;
+            font-style: italic;
+            font-size: 22px;
+        }
+
+        .below {
+            font-family: "Great Vibes", cursive;
+            color: #FFA500;
+            padding: 5px;
+            text-align: center;
+            font-style: italic;
+            font-size: 18px;
+        }
+
+        .footer {
+            background-color: transparent;
+            padding: 20px;
+            text-align: center;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .footer-logo {
+            width: 100px;
+            margin: 0 20px;
+            vertical-align: middle;
+        }
+
+        @media (max-width: 768px) {
+            .chart {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">Impact Unveiled: Pledging Change through <b>'Feed the Future'<b></div>
+    <div class="chart-container">
+        <div class="chart" id="donationChart">
+            <div class="update-label" id="donationUpdateLabel"></div>
+            <canvas id="donationCanvas"></canvas>
+        </div>
+        <div class="chart" id="contributionChart">
+            <div class="update-label" id="contributionUpdateLabel"></div>
+            <canvas id="contributionCanvas"></canvas>
+        </div>
+    </div>
+    <div class="below">
+        <h5> Support a child's nutrition for a year with just Rs 1500:
+            every meal helps them grow and thrive</h5>
+    </div>
+    <div class="tagline">
+        Every donation you make gets doubled by Share Our Strength!
+    </div>
+    <div class="footer">
+       <img src="https://www.shareourstrength.org/wp-content/uploads/2023/09/cropped-SOS_logo_mark-1-1.png" style= "width: 5%" alt="Logo"class="footer-logo">
+       <img src="https://www.akshayapatra.org/includefiles/settings/logo1.png" alt="Logo 3" class="footer-logo">
+       <img src="https://www.charities.org/wp-content/uploads/2023/10/NKH_2018_Endorsed_90_10_rgb_0.png" alt="Logo" class="footer-logo">
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            var socket = io.connect(
+                location.protocol + "//" + document.domain + ":" + location.port
+            );
+            
+
+            const donationCtx = document
+                .getElementById("donationCanvas")
+                .getContext("2d");
+            const contributionCtx = document
+                .getElementById("contributionCanvas")
+                .getContext("2d");
+            const donationUpdateLabel = document.getElementById(
+                "donationUpdateLabel"
+            );
+            const contributionUpdateLabel = document.getElementById(
+                "contributionUpdateLabel"
+            );
+
+            const donationData = {
+                labels: ["Your Generosity"],
+                datasets: [
+                    {
+                        label: "Total Amount Donated",
+                        data: [0], 
+                        backgroundColor: ["rgba(54, 162, 235, 0.5)"],
+                        borderColor: ["rgba(54, 162, 235, 1)"],
+                        borderWidth: 1,
+                    },
+                ],
+            };
+
+            const contributionData = {
+                labels: ["Our Combined Impact"],
+                datasets: [
+                    {
+                        label: "Number of children benefited",
+                        data: [0], 
+                        backgroundColor: ["rgba(255, 165, 0, 0.5)"], 
+                        borderColor: ["rgba(255, 165, 0, 1)"],
+                        borderWidth: 1,
+                    },
+                ],
+            };
+
+            const donationChart = new Chart(donationCtx, {
+                type: "bar",
+                data: donationData,
+                options: {
+                    animation: {
+                        duration: 1000, 
+                        easing: 'easeOutBounce' 
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                        },
+                    },
+                },
+            });
+
+            const contributionChart = new Chart(contributionCtx, {
+    type: "bar",
+    data: contributionData,
+    options: {
+        animation: {
+            duration: 1000, 
+            easing: 'easeOutBounce' 
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1, 
+                    callback: function(value) {
+                        if (value % 1 === 0) {
+                            return value;
+                        }
+                    },
+                },
+            },
+        },
+    },
+});
+
+            // Request initial data upon page load
+            socket.emit("request_initial_data");
+
+            socket.on("update", function (data) {
+                donationChart.data.datasets[0].data[0] = data.total_amount;
+                contributionChart.data.datasets[0].data[0] = customRound(
+                    data.total_contribution
+                );
+                donationChart.update();
+                contributionChart.update();
+
+                // Show update labels with the updated values
+                donationUpdateLabel.innerText = `Updated: Rs ${data.total_amount}`;
+                contributionUpdateLabel.innerText = `Updated: ${customRound(
+                    data.total_contribution
+                )} kids`;
+                donationUpdateLabel.style.display = "block";
+                contributionUpdateLabel.style.display = "block";
+
+                // Hide update labels after 5 seconds
+                setTimeout(() => {
+                    donationUpdateLabel.style.display = "none";
+                    contributionUpdateLabel.style.display = "none";
+                }, 5000);
+            });
+
+            function customRound(number) {
+                // Custom rounding logic
+                return number - Math.floor(number) < 0.5
+                    ? Math.floor(number)
+                    : Math.ceil(number);
+            }
+        });
+    </script>
+    
+</body>
+
+</html>
